@@ -9,8 +9,7 @@ class AgentManager(DirectObject.DirectObject):
 		
 	def __setup_events(self):
 		self.accept("arrow_up", self.__agent.walk)
-		#self.accept("arrow_up-up", self.__agent.stop_walking)
-		self.accept("k", self.__test)
+		self.accept("arrow_up-up", self.__agent.stop_walking)
 
 	def __test(self):
 		print("Soemthing pressed")
