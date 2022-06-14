@@ -1,0 +1,3 @@
+right arrow_right
+left arrow_left
+forward arrow_up
