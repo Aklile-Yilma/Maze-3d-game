@@ -9,6 +9,7 @@ import os
 from core import Config
 
 from .agent import MazeRunnerAgent, AgentManager
+from .collisionHandler import CollisionHandler
 
 class MazeRunnerGame(ShowBase):
 
@@ -26,8 +27,12 @@ class MazeRunnerGame(ShowBase):
 
 		agent = self.setup_agent("rhino")
 		agent.reparentTo(self.render)
+
+		collisionHandler= CollisionHandler(agent, scene)
+
 	
 	def setup_scene(self, level):
+
 		scene = self.loader.loadModel(os.path.join(Config.RES_PATH,
 		"models/mazes/00/maze0.bam"))
 		scene.setScale(1, 1, 1)
@@ -50,5 +55,8 @@ class MazeRunnerGame(ShowBase):
 		agent_manager = AgentManager(agent)
 
 		return agent
+
+
+
 
 
