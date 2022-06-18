@@ -11,6 +11,7 @@ from core.utils.keymapping import KeyMapping
 from core import Config
 
 from .agent import RhinoAgent, AgentManager
+from .collisionHandler import CollisionHandler
 
 
 class MazeRunnerGame(ShowBase):
@@ -33,8 +34,12 @@ class MazeRunnerGame(ShowBase):
 		agent.reparentTo(scene)
 
 		self.setup_camera(agent)
+
+		collisionHandler= CollisionHandler(agent, scene)
+
 	
 	def setup_scene(self, level):
+
 		scene = self.loader.loadModel(os.path.join(Config.RES_PATH,
 		"models/mazes/00/maze0.bam"))
 		scene.setScale(1, 1, 1)
@@ -60,4 +65,7 @@ class MazeRunnerGame(ShowBase):
 		self.camera.setScale(1/agent_scale)
 		self.camera.setPos(-2/agent_scale, -30/agent_scale, 7/agent_scale)
 		self.camera.lookAt(*agent.getPos())
+
+
+
 
