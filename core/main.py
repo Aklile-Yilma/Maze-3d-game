@@ -58,12 +58,6 @@ class MazeRunnerGame(ShowBase):
 
 		self.camera.reparentTo(camera_parent)
 		self.camera.setScale(1/agent_scale)
-		self.camera.setPos(0, -20/agent_scale, 10/agent_scale)
+		self.camera.setPos(-2/agent_scale, -30/agent_scale, 7/agent_scale)
 		self.camera.lookAt(*agent.getPos())
-
-
-	def cam_task(self, task):
-		print("Cam Pos: %s" % (self.camera.getPos(self.render)))
-		self.disableMouse()
-		self.camera.setPos(0, 0, 25)
 
