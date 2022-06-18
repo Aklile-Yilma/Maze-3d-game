@@ -18,7 +18,15 @@ class Agent(Actor):
 
 class MazeRunnerAgent(Agent):
 
-	def __init__(self, path, walk_path=None, step_size=1, step_duration=1):
+	def __init__(
+			self, 
+			path, 
+			walk_path=None, 
+			step_size=1, 
+			step_duration=1,
+			rotation_size=1,
+			rotation_duration=1
+		):
 		
 		if walk_path is None:
 			walk_path = path
@@ -26,13 +34,17 @@ class MazeRunnerAgent(Agent):
 		
 		self.__step_size = step_size
 		self.__step_duration = step_duration
-		
+		self.__rotation_size = rotation_size
+		self.__rotation_duration = rotation_duration
+
 		self._initial_setup()
 		self._state = self._get_initial_state()
 
 	def _get_initial_state(self):
 		return {
-				'forward': False
+				'forward': False,
+				'left': False,
+				'right': False
 				}
 
 	def _get_initial_hpr(self):
@@ -46,8 +58,14 @@ class MazeRunnerAgent(Agent):
 		self.setScale(*self._get_initial_scale())
 
 	def _get_forward_vector(self):
-		h = self.getH() - self._get_initial_hpr()[0]
-		return Point3(math.sin(h), math.cos(h), 0)
+		h = self.getTrueH()
+		return Point3(-math.sin(math.radians(h)), math.cos(math.radians(h)), 0)
+	
+	def setH(self, h):
+		super().setH(self._get_initial_hpr()[0] + h)
+	
+	def getTrueH(self):
+		return super().getH() - self._get_initial_hpr()[0]
 
 	def walk(self):
 		self._state["forward"] = True
@@ -59,7 +77,8 @@ class MazeRunnerAgent(Agent):
 	def stop_walking(self):
 		self._state["forward"] = False
 		self.stop()
-	
+
+
 	def __keep_walking(self):
 		
 		if not self._state["forward"]:
@@ -74,8 +93,47 @@ class MazeRunnerAgent(Agent):
 	def __walk_step(self):
 		final_position = (self._get_forward_vector() * self.__step_size) + self.getPos()
 		pos_interval = self.posInterval(self.__step_duration, final_position, startPos=self.getPos())
+		print("Forward Vector: %s" % self._get_forward_vector())
 		return pos_interval
+
+	def turn_left(self):
+		self._state["left"] = True
+		self.__turn(1)
 	
+	def turn_right(self):
+		self._state["right"] = True
+		self.__turn(-1)
+
+	def stop_turning(self):
+		self._state["right"] = self._state["left"] = False
+
+	def __turn(self, direction):
+		
+		key = "left"
+		if direction == -1:
+			key = "right"
+
+		if not self._state[key]:
+			return
+	
+		Sequence(
+				self.hprInterval(
+							self.__rotation_duration,
+							self.__calc_turn_step(direction)
+						),
+				Func(self.__turn, direction)
+			).start()
+	
+	def __calc_turn_step(self, direction):
+
+		final_hpr = self.getHpr()
+		print("Initial HPR: %s" % final_hpr)
+		final_hpr[0] = final_hpr[0] + self.__rotation_size * direction
+		print("Final HPR: %s" %final_hpr)
+		return final_hpr
+
+
+
 
 class RhinoAgent(MazeRunnerAgent):
 
@@ -83,7 +141,9 @@ class RhinoAgent(MazeRunnerAgent):
 		super(RhinoAgent, self).__init__(
 							Config.RHINO_AGENT_PATH,
 							step_size = 1,
-							step_duration = 0.4
+							step_duration = 0.2,
+							rotation_size = 5,
+							rotation_duration = 0.1
 						)
 	
 
@@ -91,7 +151,7 @@ class RhinoAgent(MazeRunnerAgent):
 		return (0.0005, 0.0005, 0.0005)
 
 	def _get_initial_hpr(self):
-		return (90, 270, 0)
+		return (90, -90, 0)
 
 	def _initial_setup(self):
 		super()._initial_setup()
