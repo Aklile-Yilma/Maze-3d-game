@@ -15,6 +15,13 @@ class Environment(ABC):
 	def get_tubes(self):
 		pass
 
+<<<<<<< HEAD
+=======
+	@abstractmethod
+	def get_finish_line(self):
+		pass
+
+>>>>>>> d8db92c (Final Touches)
 
 
 class Maze0Environment(Environment):
@@ -41,3 +48,55 @@ class Maze0Environment(Environment):
 							))
 
 		return polygons
+<<<<<<< HEAD
+=======
+	
+	def get_finish_line(self):
+		return CollisionPolygon(
+				Point3(45, 225, 0), Point3(53, 225, 0),
+				Point3(53, 225, 30), Point3(45, 225, 30)
+			)
+	
+class Maze1Environment(Maze0Environment):
+	pass
+
+
+class LoadedMazeEnvironment(Environment):
+	
+	def __init__(self, loader, scene_path, collision_path):
+		super().__init__(loader, scene_path)
+		self.push_corners, self.height, self.finish	= self.__load_collision(collision_path)
+		print(self.push_corners, self.height, self.finish, sep="-------")
+
+	def __parse_corners(self, content):
+		corners = []
+		for corner_str in content.split("|"):
+			corners.append(tuple([float(c) for c in corner_str.split(",")]))
+		print(corners)
+		return corners
+
+	def __load_collision(self,path):
+		content = open(path).read()
+		pusher, height, finish = content.split("\n")[:-1]
+		return self.__parse_corners(pusher), float(height) ,self.__parse_corners(finish)
+
+	def __create_polygons(self, corners, height):
+		polygons = []
+
+		for i in range(len(corners)-1):
+			polygons.append(CollisionPolygon(
+								Point3(*corners[i], 0), Point3(*corners[i+1], 0),
+								Point3(*corners[i+1], height), Point3(*corners[i], height)
+							))
+
+		return polygons
+
+	def get_tubes(self):
+		return self.__create_polygons(self.push_corners, self.height)
+
+	def get_finish_line(self):
+		return self.__create_polygons(self.finish, self.height)[0]
+
+
+
+>>>>>>> d8db92c (Final Touches)

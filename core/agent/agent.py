@@ -86,6 +86,8 @@ class MazeRunnerAgent(Agent):
 		self.stop()
 
 	def __traverse(self):
+		if self.parent is None:
+			return
 		self.__traverser.traverse(self.parent)
 
 	def __keep_walking(self):
@@ -102,9 +104,9 @@ class MazeRunnerAgent(Agent):
 
 	def __walk_step(self):
 		final_position = (self._get_forward_vector() * self.__step_size) + self.getPos()
-		print("Final Position: %s" % (final_position,))
+		#print("Final Position: %s" % (final_position,))
 		pos_interval = self.posInterval(self.__step_duration, final_position, startPos=self.getPos())
-		print("Forward Vector: %s" % self._get_forward_vector())
+		#print("Forward Vector: %s" % self._get_forward_vector())
 	
 		return pos_interval
 
@@ -152,7 +154,7 @@ class RhinoAgent(MazeRunnerAgent):
 	def __init__(self):
 		super(RhinoAgent, self).__init__(
 							Config.RHINO_AGENT_PATH,
-							step_size = 0.1,
+							step_size = 0.3,
 							step_duration = 0.0001,
 							rotation_size = 5,
 							rotation_duration = 0.1

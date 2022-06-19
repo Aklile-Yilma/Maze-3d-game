@@ -11,7 +11,7 @@ from core.utils.keymapping import KeyMapping
 from core import Config
 
 from .agent import RhinoAgent, AgentManager
-from .environment import Maze0Environment
+from .environment import Maze0Environment, Maze1Environment, LoadedMazeEnvironment
 from .collisionHandler import CollisionHandler
 
 
@@ -24,27 +24,38 @@ class MazeRunnerGame(ShowBase):
 		
 		self.key_mapping = KeyMapping.load(Config.KEY_MAPPING_PATH)
 
+		self.levels = Config.LEVELS 
 		self.level = 0
 		self.start_level(self.level)
-		
+	
+
+	def increment_level(self):
+		print("Cleaning Render")
+		self.render.node().removeAllChildren()
+		self.level = (self.level+1)%len(self.levels)
+		print(self.level)
+		self.start_level(self.level)
+
 	def start_level(self, level):
+		print("Starting Level %s" % (level,))
 		scene = self.setup_scene(level)
 		scene.get_node().reparentTo(self.render)
 		
-		print("Type Scene: %s", (type(scene),))
-
 		agent = self.setup_agent("rhino")
 		agent.reparentTo(self.render)
-
+		
 		self.setup_camera(agent)
 
-		collisionHandler= CollisionHandler(agent, scene, self.render)
-		collisionHandler.handle()
+		collisionHandler= CollisionHandler(agent, scene, self.render,
+				self.on_finish)
 
 	
 	def setup_scene(self, level):
 
-		scene = Maze0Environment(self.loader)
+		config = self.levels[level]
+
+		scene = LoadedMazeEnvironment(self.loader, config.scene, config.collision)
+
 		return scene
 
 		#scene = self.loader.loadModel(os.path.join(Config.RES_PATH,
@@ -73,6 +84,9 @@ class MazeRunnerGame(ShowBase):
 		self.camera.setPos(-2/agent_scale, -25/agent_scale, 6/agent_scale)
 		self.camera.lookAt(*agent.getPos())
 
+	def on_finish(self, entry):
+		self.increment_level()
+		print("Done: %s"%(entry,))
 
 
 
