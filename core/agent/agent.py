@@ -31,12 +31,14 @@ class MazeRunnerAgent(Agent):
 		if walk_path is None:
 			walk_path = path
 		super().__init__(path, {'walk': walk_path})
-		
+	
+		self.__traverser = None
+
 		self.__step_size = step_size
 		self.__step_duration = step_duration
 		self.__rotation_size = rotation_size
 		self.__rotation_duration = rotation_duration
-
+	
 		self._initial_setup()
 		self._state = self._get_initial_state()
 
@@ -60,10 +62,15 @@ class MazeRunnerAgent(Agent):
 	def _get_forward_vector(self):
 		h = self.getTrueH()
 		return Point3(-math.sin(math.radians(h)), math.cos(math.radians(h)), 0)
-	
+
+	def set_traverser(self, traverser):
+		if self.__traverse is None:
+			return
+		self.__traverser = traverser
+
 	def setH(self, h):
 		super().setH(self._get_initial_hpr()[0] + h)
-	
+
 	def getTrueH(self):
 		return super().getH() - self._get_initial_hpr()[0]
 
@@ -78,6 +85,8 @@ class MazeRunnerAgent(Agent):
 		self._state["forward"] = False
 		self.stop()
 
+	def __traverse(self):
+		self.__traverser.traverse(self.parent)
 
 	def __keep_walking(self):
 		
@@ -86,14 +95,17 @@ class MazeRunnerAgent(Agent):
 
 		Sequence(
 				self.__walk_step(),
-				Func(self.__keep_walking)
+				Func(self.__traverse),
+				Func(self.__keep_walking),
 			).start()
 
 
 	def __walk_step(self):
 		final_position = (self._get_forward_vector() * self.__step_size) + self.getPos()
+		print("Final Position: %s" % (final_position,))
 		pos_interval = self.posInterval(self.__step_duration, final_position, startPos=self.getPos())
 		print("Forward Vector: %s" % self._get_forward_vector())
+	
 		return pos_interval
 
 	def turn_left(self):
@@ -140,8 +152,8 @@ class RhinoAgent(MazeRunnerAgent):
 	def __init__(self):
 		super(RhinoAgent, self).__init__(
 							Config.RHINO_AGENT_PATH,
-							step_size = 1,
-							step_duration = 0.2,
+							step_size = 0.1,
+							step_duration = 0.0001,
 							rotation_size = 5,
 							rotation_duration = 0.1
 						)

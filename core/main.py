@@ -11,6 +11,7 @@ from core.utils.keymapping import KeyMapping
 from core import Config
 
 from .agent import RhinoAgent, AgentManager
+from .environment import Maze0Environment
 from .collisionHandler import CollisionHandler
 
 
@@ -28,23 +29,29 @@ class MazeRunnerGame(ShowBase):
 		
 	def start_level(self, level):
 		scene = self.setup_scene(level)
-		scene.reparentTo(self.render)
+		scene.get_node().reparentTo(self.render)
+		
+		print("Type Scene: %s", (type(scene),))
 
 		agent = self.setup_agent("rhino")
-		agent.reparentTo(scene)
+		agent.reparentTo(self.render)
 
 		self.setup_camera(agent)
 
-		collisionHandler= CollisionHandler(agent, scene)
+		collisionHandler= CollisionHandler(agent, scene, self.render)
+		collisionHandler.handle()
 
 	
 	def setup_scene(self, level):
 
-		scene = self.loader.loadModel(os.path.join(Config.RES_PATH,
-		"models/mazes/00/maze0.bam"))
-		scene.setScale(1, 1, 1)
-		scene.setPos(0, 0, 0)
+		scene = Maze0Environment(self.loader)
 		return scene
+
+		#scene = self.loader.loadModel(os.path.join(Config.RES_PATH,
+		#"models/mazes/00/maze0.bam"))
+		#scene.setScale(1, 1, 1)
+		#scene.setPos(0, 0, 0)
+		#return scene
 
 	def setup_agent(self, agent):
 
@@ -63,7 +70,7 @@ class MazeRunnerGame(ShowBase):
 
 		self.camera.reparentTo(camera_parent)
 		self.camera.setScale(1/agent_scale)
-		self.camera.setPos(-2/agent_scale, -30/agent_scale, 7/agent_scale)
+		self.camera.setPos(-2/agent_scale, -25/agent_scale, 6/agent_scale)
 		self.camera.lookAt(*agent.getPos())
 
 

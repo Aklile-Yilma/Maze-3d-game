@@ -7,7 +7,6 @@ class AgentManager(DirectObject.DirectObject):
 	def __init__(self, agent, key_mapping):
 		self.__agent = agent
 		self.__setup_events(key_mapping)
-		self.__setup_collision()
 
 	def __setup_events(self, key_mapping):
 
